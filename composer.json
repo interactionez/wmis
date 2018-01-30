@@ -14,7 +14,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Interactionez\\WMIS": "WMIS"
+            "Interactionez\\WMIS\\": "WMIS"
         }
     },
     "minimum-stability": "stable"
