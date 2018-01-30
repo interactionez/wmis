@@ -1,0 +1,16 @@
+{
+    "name": "interactionez/wmis",
+    "description": "Woocomerce Middleware Integration Service",
+    "type": "library",
+    "require": {
+        "slim/slim": "3.9.2"
+    },
+    "license": "Apache License 2.0",
+    "authors": [
+        {
+            "name": "Alexandru Ifrim",
+            "email": "alexandru.ifrim@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable"
+}
