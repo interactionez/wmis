@@ -3,7 +3,7 @@
     "description": "Woocomerce Middleware Integration Service",
     "type": "library",
     "require": {
-        "slim/slim": "3.9.2"
+        "slim/slim": "^3.9.2"
     },
     "license": "Apache-2.0",
     "authors": [
