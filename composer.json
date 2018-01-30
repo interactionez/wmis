@@ -5,12 +5,17 @@
     "require": {
         "slim/slim": "3.9.2"
     },
-    "license": "Apache License 2.0",
+    "license": "Apache-2.0",
     "authors": [
         {
             "name": "Alexandru Ifrim",
             "email": "alexandru.ifrim@gmail.com"
         }
     ],
+    "autoload": {
+        "psr-4": {
+            "Interactionez\\": "WMIS"
+        }
+    },
     "minimum-stability": "stable"
 }
