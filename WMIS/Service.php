@@ -161,7 +161,10 @@ class Service {
 		$data  = json_decode($request->getBody()->getContents());
 		
 		$result = $this->applyMapping($topic, $data);
-		$this->send($result["endpoint"], $result["data"]);
+		
+		if ($result !== null) {
+			$this->send($result["endpoint"], $result["data"]);
+		}
 		
 		return $response->withStatus(200);
 	}
