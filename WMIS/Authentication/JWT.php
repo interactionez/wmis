@@ -23,7 +23,6 @@ class JWT implements AuthenticationProviderInterface {
 	}
 	
 	public function validateExistingToken() {
-		file_put_contents("php://stdout", "ValidateExistingToken via JWT\n");
 		if (file_exists($this->file)) {
 			$data = file_get_contents($this->file);
 			$data = json_decode($data);
@@ -41,8 +40,6 @@ class JWT implements AuthenticationProviderInterface {
 	}
 	
 	public function authenticate() {
-		file_put_contents("php://stdout", "Login via JWT\n");
-		
 		if ($this->validateExistingToken()) {
 			return true;
 		}
@@ -78,9 +75,6 @@ class JWT implements AuthenticationProviderInterface {
 		$response->expiresOn = new \DateTime("+" . $response->expires_in . " seconds");
 		fwrite($f, json_encode($response));
 		fclose($f);
-		
-		file_put_contents("php://stdout", "Login result JWT\n" . print_r($responseCode, true) . PHP_EOL);
-		file_put_contents("php://stdout", "Login response JWT\n" . print_r($response, true) . PHP_EOL);
 		
 		$this->token = $response->access_token;
 		
