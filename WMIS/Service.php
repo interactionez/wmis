@@ -67,25 +67,18 @@ class Service {
 	}
 	
 	public function authorize(ServerRequestInterface $request, ResponseInterface $response, callable $next) {
-		
-		file_put_contents("php://stdout", "Authorization Start\n");
-		
 		$headers = $request->getHeaders();
 		
 		if(!$this->applyAuthorizationFilters($request)) {
-			file_put_contents("php://stdout", "Authorization End (Failed)\n");
-			
 			return $response->withStatus(401);
 		}
-		
-		file_put_contents("php://stdout", "Authorization End (Success)\n");
 		
 		return $next($request, $response);
 	}
 	
 	private function authorizeUserAgent(ServerRequestInterface $request) {
-		file_put_contents("php://stdout", "Authorizing UserAgent\n");
 		$header = $request->getHeader("HTTP_USER_AGENT");
+		
 		if(count($header) !== 1) {
 			return false;
 		}
@@ -96,8 +89,8 @@ class Service {
 	}
 	
 	private function authorizeWebhookSource(ServerRequestInterface $request) {
-		file_put_contents("php://stdout", "Authorizing WebhookSource\n");
 		$source = $request->getHeader("HTTP_X_WC_WEBHOOK_SOURCE");
+		
 		if(count($source) !== 1) {
 			return false;
 		}
@@ -106,8 +99,8 @@ class Service {
 	}
 	
 	private function authorizeWebhookTopic(ServerRequestInterface $request) {
-		file_put_contents("php://stdout", "Authorizing WebhookTopic\n");
 		$header = $request->getHeader("HTTP_X_WC_WEBHOOK_TOPIC");
+		
 		if(count($header) !== 1) {
 			return false;
 		}
@@ -126,17 +119,14 @@ class Service {
 	}
 	
 	private function applyAuthorizationFilters(ServerRequestInterface $request) {
-		file_put_contents("php://stdout", "ApplyAuthorizationFilters\n");
-		
 		$result = true;
+		
 		foreach($this->filters as $key => $filter) {
 			if(is_callable($filter)) {
 				$return = call_user_func($filter, $request);
 				$result &= $return == true;
 			}
 		}
-		
-		file_put_contents("php://stdout", "ApplyAuthorizationFilters Result: $result\n");
 		
 		return $result;
 	}
@@ -148,15 +138,12 @@ class Service {
 	 * @return \Interactionez\WMIS\MappingResultInterface
 	 */
 	private function applyMapping($topic, $data) {
-		file_put_contents("php://stdout", "ApplyMapping for " . $topic . "\n");
 		$mappingResult = call_user_func($this->options["topics"][$topic]["map"], $data);
 		
 		return $mappingResult;
 	}
 	
 	public function receive(ServerRequestInterface $request, ResponseInterface $response) {
-		file_put_contents("php://stdout", "Received data from source\n");
-		
 		$topic = $request->getHeader("HTTP_X_WC_WEBHOOK_TOPIC")[0];
 		$data  = json_decode($request->getBody()->getContents());
 		
@@ -170,8 +157,6 @@ class Service {
 	}
 	
 	private function send($endpoint, $data) {
-		file_put_contents("php://stdout", "Sending data to destination\n");
-		
 		$this->options["destination"]["authentication"]->authenticate();
 		
 		$data_string = json_encode($data);
@@ -185,9 +170,6 @@ class Service {
 		
 		$this->options["destination"]["authentication"]->handleRequest($headers);
 		
-		file_put_contents("php://stdout", "Sending data to destination result\n" . print_r($headers, true) . PHP_EOL);
-		
-		file_put_contents("php://stdout", "URL: $url\n");
 		$ch = curl_init($url);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
@@ -196,8 +178,7 @@ class Service {
 		
 		$result = curl_exec($ch);
 		$responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		file_put_contents("php://stdout", "Sending data to destination result\n" . print_r($responseCode, true) . PHP_EOL);
-		file_put_contents("php://stdout", "Sending data to destination result\n" . print_r($result, true) . PHP_EOL);
+
 		curl_close($ch);
 	}
 	
