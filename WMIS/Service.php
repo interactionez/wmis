@@ -45,6 +45,7 @@ class Service {
 	public function __construct($options) {
 		$this->options = $options;
 		$this->app     = new App();
+		
 		$this->app->add([$this, "authorize"]);
 		
 		// todo: validate $options
@@ -55,8 +56,9 @@ class Service {
 				$endpoint = str_replace(".", "/", strtolower($name));
 			}
 			
-			array_push($this->endpoints, "/api/$endpoint");
-			$this->app->post("/api/$endpoint", [$this, "receive"]);
+			array_push($this->endpoints, "/$endpoint");
+			$this->app->post("/$endpoint", [$this, "receive"]);
+			$this->app->get("/$endpoint", [$this, "pong"]);
 		}
 		
 		$this->registerAuthorizationFilter([$this, "authorizeUserAgent"]);
@@ -67,8 +69,6 @@ class Service {
 	}
 	
 	public function authorize(ServerRequestInterface $request, ResponseInterface $response, callable $next) {
-		$headers = $request->getHeaders();
-		
 		if(!$this->applyAuthorizationFilters($request)) {
 			return $response->withStatus(401);
 		}
@@ -138,6 +138,10 @@ class Service {
 	 * @return \Interactionez\WMIS\MappingResultInterface
 	 */
 	private function applyMapping($topic, $data) {
+		if ($topic == "") {
+			return null;
+		}
+		
 		$mappingResult = call_user_func($this->options["topics"][$topic]["map"], $data);
 		
 		return $mappingResult;
