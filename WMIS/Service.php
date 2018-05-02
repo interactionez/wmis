@@ -42,6 +42,16 @@ class Service {
 	 */
 	private $options;
 	
+	/**
+	 * @var
+	 */
+	private $responseCode;
+	
+	/**
+	 * @var
+	 */
+	private $responseBody;
+	
 	public function __construct($options) {
 		$this->options = $options;
 		$this->app     = new App();
@@ -150,13 +160,14 @@ class Service {
 	public function receive(ServerRequestInterface $request, ResponseInterface $response) {
 		$topic = $request->getHeader("HTTP_X_WC_WEBHOOK_TOPIC")[0];
 		$data  = json_decode($request->getBody()->getContents());
+		
 		$result = $this->applyMapping($topic, $data);
 		
 		if($result !== null) {
-			$responseCode = $this->send($result["endpoint"], $result["data"]);
-			if($responseCode !== 200) {
-				$response->withHeader('Received HTTP Status', $responseCode);
-			}
+			$this->send($result["endpoint"], $result["data"]);
+			
+			return $response->withHeader('Received HTTP Status', $this->responseCode)
+			                ->withJson(json_decode($this->responseBody));
 		}
 		
 		return $response->withStatus(200);
@@ -182,12 +193,10 @@ class Service {
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		
-		$result       = curl_exec($ch);
-		$responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$this->responseBody = curl_exec($ch);
+		$this->responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		
 		curl_close($ch);
-		
-		return $responseCode;
 	}
 	
 	public function start() {
